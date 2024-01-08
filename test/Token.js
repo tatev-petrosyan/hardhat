@@ -82,6 +82,29 @@ describe("Token contract", function () {
       ).to.changeTokenBalances(hardhatToken, [addr1, addr2], [-50, 50]);
     });
 
+    it("Check transfers", async function() {
+      const { hardhatToken, owner, addr1, addr2 } = await loadFixture(
+        deployTokenFixture
+      );
+
+      const senderBalance = await hardhatToken.balanceOf(owner.address)
+      console.log("sender balance: " + senderBalance)
+      
+      const receiverBalance = await hardhatToken.balanceOf(addr1.address)
+      console.log("receiver balance: " + receiverBalance)
+      
+      await hardhatToken.transfer(addr1.address, 100)
+
+      expect(await hardhatToken.balanceOf(owner.address)).to.equal(senderBalance - BigInt(100))
+      expect(await hardhatToken.balanceOf(addr1.address)).to.equal(receiverBalance + BigInt(100))
+     
+      const senderBalanceAfter = await hardhatToken.balanceOf(owner.address)
+      console.log("sender balance after transaction: " + senderBalanceAfter)
+      
+      const receiverBalanceAfter = await hardhatToken.balanceOf(addr1.address)
+      console.log("receiver balance after transaction: " + receiverBalanceAfter)
+    });
+
     it("Should emit Transfer events", async function () {
       const { hardhatToken, owner, addr1, addr2 } = await loadFixture(
         deployTokenFixture
