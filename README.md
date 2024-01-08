@@ -16,6 +16,6 @@ Select Create an empty hardhat.config.js with your keyboard and hit enter.
 # Install Hardhat plugins
 npm install --save-dev @nomicfoundation/hardhat-toolbox
 
-My added testcases: 
+# My added testcases: 
 
-Testcase "Check transfers" - add 100 tokens from owner to addr1 and check both account balances before and after
+#Testcase "Check transfers" - add 100 tokens from owner to addr1 and check both account balances before and after
