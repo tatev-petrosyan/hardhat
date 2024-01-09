@@ -12,6 +12,7 @@ const { expect } = require("chai");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
+const { assertHardhatInvariant } = require("hardhat/internal/core/errors");
 
 // `describe` is a Mocha function that allows you to organize your tests.
 // Having your tests organized makes debugging them easier. All Mocha
@@ -27,6 +28,7 @@ describe("Token contract", function () {
   async function deployTokenFixture() {
     // Get the Signers here.
     const [owner, addr1, addr2] = await ethers.getSigners();
+    
 
     // To deploy our contract, we just have to call ethers.deployContract and await
     // its waitForDeployment() method, which happens once its transaction has been
@@ -34,9 +36,9 @@ describe("Token contract", function () {
     const hardhatToken = await ethers.deployContract("Token");
 
     await hardhatToken.waitForDeployment();
-
+    const totalSupply = await hardhatToken.totalSupply()
     // Fixtures can return anything you consider useful for your tests
-    return { hardhatToken, owner, addr1, addr2 };
+    return { hardhatToken, owner, addr1, addr2, totalSupply};
   }
 
   // You can nest describe calls to create subsections.
@@ -63,6 +65,13 @@ describe("Token contract", function () {
       const ownerBalance = await hardhatToken.balanceOf(owner.address);
       expect(await hardhatToken.totalSupply()).to.equal(ownerBalance);
     });
+  
+  
+  it("Should be 1000000 total supply", async function () {
+    const { totalSupply } = await loadFixture(deployTokenFixture);
+    expect(totalSupply).to.equal(1000000);
+
+  });
   });
 
   describe("Transactions", function () {
