@@ -19,3 +19,9 @@ npm install --save-dev @nomicfoundation/hardhat-toolbox
 # My added testcases: 
 
 #Testcase "Check transfers" - add 100 tokens from owner to addr1 and check both account balances before and after
+#Testcase "Check name and symbol of the token" - Token should have predefined name and symbol.
+#Testcase "Check predefined total supply amount" - Token is assigned fixed amount of total supply.
+#Testcase "Check more then total supply transfer" - Do not allow transfer more token.
+
+
+
