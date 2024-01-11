@@ -28,7 +28,7 @@ describe("Token contract", function () {
   async function deployTokenFixture() {
     // Get the Signers here.
     const [owner, addr1, addr2] = await ethers.getSigners();
-    
+
 
     // To deploy our contract, we just have to call ethers.deployContract and await
     // its waitForDeployment() method, which happens once its transaction has been
@@ -37,8 +37,9 @@ describe("Token contract", function () {
 
     await hardhatToken.waitForDeployment();
     const totalSupply = await hardhatToken.totalSupply()
+
     // Fixtures can return anything you consider useful for your tests
-    return { hardhatToken, owner, addr1, addr2, totalSupply};
+    return { hardhatToken, owner, addr1, addr2, totalSupply };
   }
 
   // You can nest describe calls to create subsections.
@@ -60,18 +61,26 @@ describe("Token contract", function () {
       expect(await hardhatToken.owner()).to.equal(owner.address);
     });
 
+    it("Should the name and symbol of Token be right", async function () {
+      const { hardhatToken, owner } = await loadFixture(deployTokenFixture);
+
+      expect(await hardhatToken.name()).to.equal("My Hardhat Token");
+      expect(await hardhatToken.symbol()).to.equal("MHT");
+    });
+
+
     it("Should assign the total supply of tokens to the owner", async function () {
       const { hardhatToken, owner } = await loadFixture(deployTokenFixture);
       const ownerBalance = await hardhatToken.balanceOf(owner.address);
       expect(await hardhatToken.totalSupply()).to.equal(ownerBalance);
     });
-  
-  
-  it("Should be 1000000 total supply", async function () {
-    const { totalSupply } = await loadFixture(deployTokenFixture);
-    expect(totalSupply).to.equal(1000000);
 
-  });
+
+    it("Should be 1000000 total supply", async function () {
+      const { totalSupply } = await loadFixture(deployTokenFixture);
+      expect(totalSupply).to.equal(1000000);
+
+    });
   });
 
   describe("Transactions", function () {
@@ -91,25 +100,25 @@ describe("Token contract", function () {
       ).to.changeTokenBalances(hardhatToken, [addr1, addr2], [-50, 50]);
     });
 
-    it("Check transfers", async function() {
+    it("Check transfers", async function () {
       const { hardhatToken, owner, addr1, addr2 } = await loadFixture(
         deployTokenFixture
       );
 
       const senderBalance = await hardhatToken.balanceOf(owner.address)
       console.log("sender balance: " + senderBalance)
-      
+
       const receiverBalance = await hardhatToken.balanceOf(addr1.address)
       console.log("receiver balance: " + receiverBalance)
-      
+
       await hardhatToken.transfer(addr1.address, 100)
 
       expect(await hardhatToken.balanceOf(owner.address)).to.equal(senderBalance - BigInt(100))
       expect(await hardhatToken.balanceOf(addr1.address)).to.equal(receiverBalance + BigInt(100))
-     
+
       const senderBalanceAfter = await hardhatToken.balanceOf(owner.address)
       console.log("sender balance after transaction: " + senderBalanceAfter)
-      
+
       const receiverBalanceAfter = await hardhatToken.balanceOf(addr1.address)
       console.log("receiver balance after transaction: " + receiverBalanceAfter)
     });
@@ -129,6 +138,19 @@ describe("Token contract", function () {
       await expect(hardhatToken.connect(addr1).transfer(addr2.address, 50))
         .to.emit(hardhatToken, "Transfer")
         .withArgs(addr1.address, addr2.address, 50);
+    });
+
+    it("Should fail if sender transfer more then total supply", async function () {
+      const { hardhatToken, owner, addr1 } = await loadFixture(
+        deployTokenFixture
+      );
+      const initialOwnerBalance = await hardhatToken.balanceOf(owner.address);
+      await expect(hardhatToken.transfer(addr1.address, 1000001)
+      ).to.be.revertedWith("Not enough tokens");
+
+      expect(await hardhatToken.balanceOf(owner.address)).to.equal(
+        initialOwnerBalance
+      )
     });
 
     it("Should fail if sender doesn't have enough tokens", async function () {
